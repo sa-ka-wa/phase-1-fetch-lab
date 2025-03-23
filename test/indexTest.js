@@ -1,33 +1,48 @@
-require ( './helpers.js' );
+require("./helpers.js");
 
-const sinon = require( 'sinon' );
-const helpers = require( './helpers' );
-const chai = require( 'chai' );
-const spies = require( 'chai-spies' );
+const sinon = require("sinon");
+const helpers = require("./helpers");
+const chai = require("chai");
+const spies = require("chai-spies");
 
-chai.use( spies );
+chai.use(spies);
 
+const fetchBooks = () => {
+  return fetch("https://anapioficeandfire.com/api/books")
+    .then((resp) => resp.json())
+    .then((json) => renderBooks(json));
+};
 
-describe( "index.js", () => {
-  describe( 'fetchBooks()', () => {
+const renderBooks = (json) => {
+  const main = document.querySelector("main");
+  json.forEach((book) => {
+    let h2 = document.createElement("h2");
+    h2.innerText = book.name;
+    main.appendChild(h2);
+  });
+};
 
-    beforeEach( () => {
-      window.document.body.innerHTML = '<main></main>'
-      window.fetch = require( 'node-fetch' );
-    } );
+describe("index.js", () => {
+  describe("fetchBooks()", () => {
+    beforeEach(() => {
+      window.document.body.innerHTML = "<main></main>";
+      window.fetch = require("node-fetch");
+    });
 
-    it( "sends a fetch request to 'https://anapioficeandfire.com/api/books'", async () => {
-      chai.spy.on( window, 'fetch' );
-      await fetchBooks()
-      expect( window.fetch, "A fetch to the API was not found" )
-        .to.have.been.called.with( 'https://anapioficeandfire.com/api/books' );
-    } )
+    it("sends a fetch request to 'https://anapioficeandfire.com/api/books'", async () => {
+      chai.spy.on(window, "fetch");
+      await fetchBooks();
+      expect(
+        window.fetch,
+        "A fetch to the API was not found"
+      ).to.have.been.called.with("https://anapioficeandfire.com/api/books");
+    });
 
-    it( "renders book titles into the DOM by passing a JSON object to renderBooks()", async () => {
-      chai.spy.on( window, 'renderBooks' );
+    it("renders book titles into the DOM by passing a JSON object to renderBooks()", async () => {
+      chai.spy.on(window, "renderBooks");
       await fetchBooks().then(() => {
-        expect( window.renderBooks ).to.have.been.called();
-      })
-    } )
-  } )
-})
+        expect(window.renderBooks).to.have.been.called();
+      });
+    });
+  });
+});
